@@ -38,7 +38,7 @@
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "initialStateCheck": false
                 },
                 {
@@ -81,6 +81,24 @@
                     "name": "Sprint",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchScene",
+                    "type": "Button",
+                    "id": "c6f30f64-249a-400e-8370-704b7cd5493c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResetScene",
+                    "type": "Button",
+                    "id": "0cca831f-049e-4ed8-97e5-5f56c6b60814",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -327,6 +345,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "B Button",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bda922fb-5132-485b-a730-fb8d6a42e7bc",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchScene",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a3dba4df-b1ed-4893-91bb-04bc4a34ddd7",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ResetScene",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

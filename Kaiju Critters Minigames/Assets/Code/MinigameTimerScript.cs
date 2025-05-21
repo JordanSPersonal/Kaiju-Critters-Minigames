@@ -6,14 +6,15 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
 using Unity.Mathematics;
+using UnityEditor.SearchService;
 
 public class MinigameTimerScript : MonoBehaviour
 {
     public enum Difficulty
     {
-        Easy,
-        Medium,
-        Hard
+        Normal,
+        Hard,
+        VeryHard
     }
     public enum CurrentPhase
     {
@@ -37,6 +38,7 @@ public class MinigameTimerScript : MonoBehaviour
     public List<string> headlines;
     public TextMeshProUGUI headline, difficultyText;
     public Slider timerSlider;
+    public Image fillImage;
     
     void Start()
     {
@@ -46,6 +48,7 @@ public class MinigameTimerScript : MonoBehaviour
         headline.text = headlines[0];
         timerSlider = GetComponentInChildren<Slider>();
         timerSlider.maxValue = timerCurrent;
+        fillImage = GameObject.FindGameObjectWithTag("Fill").GetComponent<Image>();
         SetupButtons();
         SetupText();
     }
@@ -53,6 +56,19 @@ public class MinigameTimerScript : MonoBehaviour
     {
         timerCurrent -= Time.deltaTime;
         timerSlider.value = timerCurrent;
+        if(timerSlider.value < timerSlider.maxValue / 4f)
+        {
+            fillImage.color = Color.red;
+
+        }
+        else if (timerSlider.value < timerSlider.maxValue / 2f)
+        {
+            fillImage.color = Color.yellow;
+        }
+        else
+        {
+            fillImage.color = Color.green;
+        }
         if (timerCurrent < 0f && phase == CurrentPhase.GetReady)
         {
             phase = CurrentPhase.Play;
@@ -60,7 +76,7 @@ public class MinigameTimerScript : MonoBehaviour
             timerSlider.maxValue = timerCurrent;
             headline.text = headlines[1];
         }
-        else if(timerCurrent < 0f && phase == CurrentPhase.Play)
+        else if (timerCurrent < 0f && phase == CurrentPhase.Play)
         {
             timerCurrent = timers[2];
             timerSlider.maxValue = timerCurrent;
@@ -70,7 +86,7 @@ public class MinigameTimerScript : MonoBehaviour
                 headline.text = headlines[2];
                 headline.color = Color.green;
             }
-            else if(successfulInputs >= totalButtons / 2)
+            else if (successfulInputs >= totalButtons / 2)
             {
                 headline.text = headlines[3];
                 headline.color = Color.yellow;
@@ -81,15 +97,35 @@ public class MinigameTimerScript : MonoBehaviour
                 headline.color = Color.red;
             }
         }
-        else if (timerCurrent < 0  && phase == CurrentPhase.Reset)
+        else if (timerCurrent < 0 && phase == CurrentPhase.Reset)
         {
             SceneManager.LoadScene(0);
+        }
+    }
+    public void SwitchScene(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            int newScene = SceneManager.GetActiveScene().buildIndex + 1;
+            if (newScene > SceneManager.sceneCount + 1)
+            {
+                newScene = 0;
+            }
+            SceneManager.LoadScene(newScene);
+        }
+    }
+    public void ResetScene(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
     public void AButtonPress(InputAction.CallbackContext context)
     {
         if(context.performed && phase == CurrentPhase.Play)
         {
+            Debug.Log("A Button Press");
             if (activeButtons[0].buttonType == ButtonBehaviourScript.ButtonType.AButton)
             {
                 Debug.Log("Correct Button!");
@@ -109,6 +145,7 @@ public class MinigameTimerScript : MonoBehaviour
     {
         if (context.performed && phase == CurrentPhase.Play)
         {
+            Debug.Log("B Button Press");
             if (activeButtons[0].buttonType == ButtonBehaviourScript.ButtonType.BButton)
             {
                 Debug.Log("Correct Button!");
@@ -128,6 +165,7 @@ public class MinigameTimerScript : MonoBehaviour
     {
         if (context.performed && phase == CurrentPhase.Play)
         {
+            Debug.Log("X Button Press");
             if (activeButtons[0].buttonType == ButtonBehaviourScript.ButtonType.XButton)
             {
                 Debug.Log("Correct Button!");
@@ -145,9 +183,10 @@ public class MinigameTimerScript : MonoBehaviour
     }
     public void YButtonPress(InputAction.CallbackContext context)
     {
-        Debug.Log("Y Button Press");
+        Debug.Log("Y Button Press 1");
         if (context.performed && phase == CurrentPhase.Play)
         {
+            Debug.Log("Y Button Press 2");
             if (activeButtons[0].buttonType == ButtonBehaviourScript.ButtonType.YButton)
             {
                 Debug.Log("Correct Button!");
@@ -171,19 +210,19 @@ public class MinigameTimerScript : MonoBehaviour
             //First is get ready time
             //Second timer to add is overall time to do input
             //Third timer added is time to reset scene after minigame completion
-            case Difficulty.Easy:
+            case Difficulty.Normal:
                 ret.Add(getReadyTime);
                 ret.Add(playTime);
                 ret.Add(resetTime);
                 return ret;
-            case Difficulty.Medium:
-                ret.Add(getReadyTime);
-                ret.Add(playTime * 0.75f);
-                ret.Add(resetTime);
-                return ret;
             case Difficulty.Hard:
                 ret.Add(getReadyTime);
-                ret.Add(playTime * 0.5f);
+                ret.Add(playTime);
+                ret.Add(resetTime);
+                return ret;
+            case Difficulty.VeryHard:
+                ret.Add(getReadyTime);
+                ret.Add(playTime);
                 ret.Add(resetTime);
                 return ret;
             default:
@@ -197,8 +236,8 @@ public class MinigameTimerScript : MonoBehaviour
     {
         switch (difficulty)
         {
-            //Number of buttons easy = 3, medium = 5, hard = 7
-            case Difficulty.Easy:
+            //Number of buttons Normal = 3, Hard = 5, VeryHard = 7
+            case Difficulty.Normal:
                 totalButtons = 3;
                 for(int i = 0; i < totalButtons; i++)
                 {
@@ -209,7 +248,7 @@ public class MinigameTimerScript : MonoBehaviour
                 activeButtons[0].gameObject.transform.localPosition += new Vector3(-buttonOffset, 0f, 0f);
                 activeButtons[2].gameObject.transform.localPosition += new Vector3(buttonOffset, 0f, 0f);
                 return;
-            case Difficulty.Medium:
+            case Difficulty.Hard:
                 totalButtons = 5;
                 for (int i = 0; i < totalButtons; i++)
                 {
@@ -222,7 +261,7 @@ public class MinigameTimerScript : MonoBehaviour
                 activeButtons[3].gameObject.transform.localPosition += new Vector3(buttonOffset, 0f, 0f);
                 activeButtons[4].gameObject.transform.localPosition += new Vector3(buttonOffset * 2f, 0f, 0f);
                 return;
-            case Difficulty.Hard:
+            case Difficulty.VeryHard:
                 totalButtons = 7;
                 for (int i = 0; i < totalButtons; i++)
                 {
@@ -244,16 +283,16 @@ public class MinigameTimerScript : MonoBehaviour
         switch (difficulty)
         {
             //Describes difficulty
-            case Difficulty.Easy:
-                difficultyText.text = "Difficulty: Easy";
+            case Difficulty.Normal:
+                difficultyText.text = "Difficulty: Normal";
                 difficultyText.color = Color.green;
-                return;
-            case Difficulty.Medium:
-                difficultyText.text = "Difficulty: Medium";
-                difficultyText.color = Color.yellow;
                 return;
             case Difficulty.Hard:
                 difficultyText.text = "Difficulty: Hard";
+                difficultyText.color = Color.yellow;
+                return;
+            case Difficulty.VeryHard:
+                difficultyText.text = "Difficulty: Very Hard";
                 difficultyText.color = Color.red;
                 return;
         }
